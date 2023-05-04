@@ -1,0 +1,9 @@
+mutation quitChat($chatId: Int!) {
+  quitChat(chat_id: $chatId) {
+    error {
+      code
+      message
+    }
+    success
+  }
+}

@@ -1,0 +1,38 @@
+@import "./variables.scss";
+
+.szh-menu {
+  $line-thickness: 4px;
+  $outside-radius: $border-radius-medium;
+
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: $line-thickness;
+  background-color: rgba($gray, $alpha: .7);
+  // border: 1px solid $light-gray;
+  border-radius: $outside-radius;
+  backdrop-filter: blur(10px);
+  &__item {
+    display: flex;
+    cursor: pointer;
+    border-radius: calc($outside-radius - $line-thickness);
+    outline: none;
+    padding: 6px;
+    &:hover {
+      background-color: rgba($color: $light-gray, $alpha: .9);
+    }
+    span {
+      white-space: nowrap;
+      &.warning {
+        color: $yellow;
+      }
+      &.danger {
+        color: $error;
+      }
+    }
+  }
+  &__divider {
+    border-bottom: 1px solid $lighter-gray;
+    margin: 4px 10px;
+  }
+}

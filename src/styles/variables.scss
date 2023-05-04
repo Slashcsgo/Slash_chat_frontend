@@ -1,0 +1,35 @@
+// colors
+$gray: #333333;
+$lighter-gray: #575656;
+$light-gray: #424242;
+$deep-gray: #2b2b2b;
+$dark-gray: #201f1f;
+$white: #edf0f5;
+$light-blue: #adb9d3;
+$blue: #637bad;
+$deep-blue: #3a5795;
+$error: #e83030;
+$yellow: #ffcc00;
+
+// sizes
+$border-radius-small: 6px;
+$border-radius-medium: 8px;
+$border-radius-big: 16px;
+$border-radius-full: 100%;
+
+// shadows
+@mixin shadow {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+@mixin inner-shadow {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 10px inset;
+}
+
+@mixin window-wrapper {
+  @include shadow;
+  display: flex;
+  background-color: $gray;
+  border: 1px solid $light-gray;
+  border-radius: $border-radius-medium;
+}

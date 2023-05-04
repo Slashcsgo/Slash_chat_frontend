@@ -1,0 +1,12 @@
+subscription messageCreated($chatId: Int!) {
+  messageDeleted(chatId: $chatId) {
+    chat_id
+    content
+    created_at
+    id
+    user {
+      id
+      name
+    }
+  }
+}

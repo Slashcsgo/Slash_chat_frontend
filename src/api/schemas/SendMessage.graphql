@@ -1,0 +1,15 @@
+mutation sendMessage($chatId: Int!, $content: String!) {
+  sendMessage(chat_id: $chatId, content: $content) {
+    error {
+      code
+      message
+    }
+    success
+    message {
+      id
+      content
+      created_at
+      chat_id
+    }
+  }
+}

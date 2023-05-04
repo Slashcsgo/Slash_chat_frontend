@@ -1,0 +1,32 @@
+@import "./variables.scss";
+@import "./responsive.scss";
+
+h1,h2,h3,h4,h5,h6 {
+  margin: 0;
+}
+
+h1,h2 {
+  font-size: 1.5em;
+}
+
+h3 {
+  font-size: 1em;
+}
+
+h4 {
+  @include xs-less {
+    font-size: .75em;
+  }
+}
+
+span {
+  &.error {
+    font-size: 14px;
+    color: $error;
+    margin-left: 5px;
+  }
+  @include xs-less {
+    font-size: 12px;
+    line-height: 12px;
+  }
+}

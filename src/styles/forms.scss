@@ -1,0 +1,56 @@
+@import "./variables.scss";
+
+.login-form, .chat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  &__inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.message-form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  &>* {
+    display: flex;
+  }
+  &__controls {
+    gap: 8px;
+    align-items: end;
+    height: 100%;
+  }
+  &__info {
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    span {
+      border-left: 3px solid $blue;
+      padding-left: 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.875em;
+      overflow: hidden;
+      display: block;
+    }
+    img {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+}
+
+.textedit-form {
+  display: flex;
+  textarea {
+    font-size: .8em;
+  }
+  img {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}

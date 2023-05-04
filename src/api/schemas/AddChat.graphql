@@ -1,0 +1,14 @@
+mutation addChat($title: String!, $description: String) {
+  addChat(title: $title, description: $description) {
+    error {
+      message
+      code
+    }
+    chat {
+      description
+      id
+      title
+    }
+    success
+  }
+}

@@ -1,0 +1,60 @@
+$sm: 768px;
+$xs: 576px;
+
+@mixin screen-max($width: 768px) {
+  @media screen and (max-width: $width) {
+    @content;
+  }
+}
+
+@mixin screen-min($width: 768px) {
+  @media screen and (min-width: $width) {
+    
+  }
+}
+
+@mixin sm-less {
+  @include screen-max() {
+    @content;
+  }
+}
+
+@mixin xs-less {
+  @include screen-max(($xs)) {
+    @content;
+  }
+}
+
+.hide-sm {
+  display: initial !important;
+}
+
+.show-sm {
+  display: none !important;
+}
+
+.hide-xs {
+  display: initial !important;
+}
+
+.show-xs {
+  display: none !important;
+}
+
+@include sm-less() {
+  .hide-sm {
+    display: none !important;
+  }
+  .show-sm {
+    display: initial !important;
+  }
+}
+
+@include xs-less() {
+  .hide-xs {
+    display: none !important;
+  }
+  .show-xs {
+    display: initial !important;
+  }
+}

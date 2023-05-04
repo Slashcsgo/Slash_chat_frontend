@@ -1,0 +1,5 @@
+subscription Subscription {
+  chatRemoved {
+    id
+  }
+}

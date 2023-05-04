@@ -1,0 +1,47 @@
+@import "./variables.scss";
+
+.input-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+input {
+  @include inner-shadow;
+  background-color: $light-gray;
+  border: 1px solid $light-gray;
+  outline: none;
+  font-size: 16px;
+  padding: 8px;
+  border-radius: $border-radius-small;
+  color: $white;
+  &::placeholder {
+    color: $white;
+  }
+}
+
+.textbox-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+}
+
+textarea {
+  resize: none;
+  outline: none;
+  margin: 0;
+  width: 100%;
+  vertical-align: bottom;
+  border: 0;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 2px;
+  background-color: transparent;
+  color: white;
+  &::placeholder {
+    color: $light-blue;
+  }
+}

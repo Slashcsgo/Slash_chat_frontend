@@ -1,0 +1,13 @@
+mutation modifyUser($description: String, $name: String) {
+  modifyUser(description: $description, name: $name) {
+    error {
+      code
+      message
+    }
+    success
+    user {
+      name
+      description
+    }
+  }
+}
