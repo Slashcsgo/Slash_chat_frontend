@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useMemo } from "react";
 
 type Props = {
   letter: string,
@@ -18,7 +18,7 @@ const colors = [
 ]
 
 export const UserPicture: FunctionComponent<Props> = ({letter, colorId, size=null}) => {
-  const color = colors[colorId % colors.length]
+  const color = useMemo(() => colors[colorId % colors.length], [colorId])
   return <div className={`user-image ${size ? size : ""}`} style={{background: color}}>
     <span className="user-image_letter">{letter.toUpperCase()}</span>
   </div>

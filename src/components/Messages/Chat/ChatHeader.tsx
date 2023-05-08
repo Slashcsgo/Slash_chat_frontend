@@ -1,6 +1,6 @@
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { ControlledMenu, MenuDivider, MenuItem, SubMenu } from "@szhsin/react-menu";
-import { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useMemo, useRef, useState } from "react";
 import { currentUser } from "../../../cache/Auth";
 import { ImageButton } from "../../controls/buttons/ImageButton";
 import { UserPicture } from "../../UserPicture";
@@ -33,10 +33,15 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
   const chatsData = useReactiveVar(chats)
   const chatsPreviewsData = useReactiveVar(chatsPreviews)
   const usersDataRaw = useReactiveVar(users)
-  const chatUsers = chat.users.filter(e => e.id !== user?.id)
-  const usersData = usersDataRaw.filter(e => {
-    return e.id !== user?.id && !chatUsers.find(el => el.id === e.id)
-  })
+  
+  const chatUsers = useMemo(() => {
+    return chat.users.filter(e => e.id !== user?.id)
+  }, [chat.users, user])
+  const usersData = useMemo(() => {
+    return usersDataRaw.filter(e => {
+      return e.id !== user?.id && !chatUsers.find(el => el.id === e.id)
+    })
+  }, [usersDataRaw, user, chatUsers])
 
   const [editingField, setEditingField] = useState<"title" | "description">()
 

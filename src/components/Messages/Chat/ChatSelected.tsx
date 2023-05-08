@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, memo, useCallback, useMemo, useState } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
 import { Chat, Message, Messages } from "../../../cache/Messages";
 import { ChatHeader } from "./ChatHeader";
@@ -20,23 +20,27 @@ export const ChatSelected: FunctionComponent<Props>
     }) => {
     const [editingMessage, setEditingMessage] = useState<Message>()
 
-    const beforeDelete = (messageId: number) => {
+    const closeEditing = useCallback(() => {
+      setEditingMessage(undefined)
+    }, [])
+
+    const beforeDelete = useCallback((messageId: number) => {
       if (messageId === editingMessage?.id) {
         setEditingMessage(undefined)
         onDeleteMessage(messageId)
       } else {
         onDeleteMessage(messageId)
       }
-    }
+    }, [editingMessage?.id])
 
-    const onSubmit: SubmitHandler<FieldValues> = (formData) => {
+    const onSubmit = useCallback<SubmitHandler<FieldValues>>((formData) => {
       if (editingMessage) {
         onEditMessage(formData, editingMessage.id)
         setEditingMessage(undefined)
       } else {
         onSendMessage(formData)
       }
-    }
+    }, [editingMessage?.id])
 
     return (
       <div className="chat">
@@ -47,7 +51,7 @@ export const ChatSelected: FunctionComponent<Props>
             setEditingMessage={(message: Message) => setEditingMessage(message)} 
           />
           <ChatInput onSubmit={onSubmit} 
-            closeEditingMessage={() => setEditingMessage(undefined)} 
+            closeEditingMessage={closeEditing} 
             editingMessage={editingMessage}
           />
       </div>

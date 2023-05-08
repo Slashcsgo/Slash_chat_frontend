@@ -35,21 +35,12 @@ export const MessageForm: FunctionComponent<Props>
       }
     }
 
-    const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement>
-      = (event) => {
-        if (event.code === "Enter" && !event.shiftKey) {
-          event.preventDefault()
-          handleEnterKey(event)
-        }
-      }
-
     const handleEnterKey: React.KeyboardEventHandler<HTMLTextAreaElement> 
       = (event) => {
         const target = event.target as HTMLTextAreaElement
         onSubmit({
           message: target.value
         })
-        target.value = ""
       }
 
     return (
@@ -72,8 +63,8 @@ export const MessageForm: FunctionComponent<Props>
         }
         <div className="message-form__controls">
           <Textbox register={register} params={{required: true, maxLength: 2000, }} 
-            placeholder="Введите сообщение" name="message" onKeyDown={onKeyDown} 
-            initValue={editingMessage?.content} 
+            placeholder="Введите сообщение" name="message" onEnter={handleEnterKey}
+            initValue={editingMessage?.content || ""} clearOnEsc={true} clearOnEnter={true}
           />
           <ImageButton image={SendImage} onClick={() => { trigger() }} alt="Отправить" />
         </div>

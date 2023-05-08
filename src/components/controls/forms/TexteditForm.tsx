@@ -27,14 +27,6 @@ export const TexteditForm: FunctionComponent<Props>
       setFocus(name)
     }, [setFocus])
 
-    const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement>
-      = (event) => {
-        if (event.code === "Enter" && !event.shiftKey) {
-          event.preventDefault()
-          handleEnterKey(event)
-        }
-      }
-
     const handleEnterKey: React.KeyboardEventHandler<HTMLTextAreaElement> 
       = (event) => {
         const target = event.target as HTMLTextAreaElement
@@ -50,7 +42,8 @@ export const TexteditForm: FunctionComponent<Props>
       >
         <Textbox register={register} params={params}
           placeholder={placeholder} name={name} 
-          initValue={value} onKeyDown={onKeyDown}
+          initValue={value} clearOnEnter={true} clearOnEsc={true} 
+          onEnter={handleEnterKey} onEsc={() => close()}
         />
         <ImageButton image={CheckmarkImage} 
           alt="Сохранить" />

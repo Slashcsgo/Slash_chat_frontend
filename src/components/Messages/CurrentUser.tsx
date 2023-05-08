@@ -1,6 +1,6 @@
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { ControlledMenu, MenuDivider, MenuItem } from "@szhsin/react-menu";
-import { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useMemo, useRef, useState } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { currentUser, User } from "../../cache/Auth";
@@ -16,17 +16,24 @@ export const CurrentUser: FunctionComponent = () => {
   const [editingField, setEditingField] = useState<"name" | "description">()
   const navigate = useNavigate()
 
-  const name = user?.name || ""
-  const colorId = name.length + name.charCodeAt(name.length - 1)
+  const name = useMemo(() => {
+    return user?.name || ""
+  }, [user?.name])
 
-  let description = ""
-  if (user?.description) {
-    if (user.description.length > 70) {
-      description = user.description.slice(0, 70) + "..."
-    } else {
-      description = user.description
+  const colorId = useMemo(() => {
+    return name.length + name.charCodeAt(name.length - 1)
+  }, [name])
+
+  let description = useMemo(() => {
+    if (user?.description) {
+      if (user.description.length > 70) {
+        return user.description.slice(0, 70) + "..."
+      } else {
+        return user.description
+      }
     }
-  }
+    return ""
+  }, [user?.description])
 
   const onContextMenu: React.MouseEventHandler<HTMLDivElement> 
     = (e) => {

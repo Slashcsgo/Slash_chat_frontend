@@ -1,48 +1,75 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useCallback, useEffect, useState } from "react";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 
 type Props = {
   placeholder: string,
   name: string,
   register: UseFormRegister<FieldValues>,
-  onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>
   params?: {
     required?: boolean,
     minLength?: number,
     maxLength?: number,
     pattern?: RegExp,
   },
-  initValue: string | undefined
+  initValue: string | undefined,
+  clearOnEnter?: boolean,
+  clearOnEsc?: boolean,
+  onEnter?: React.KeyboardEventHandler<HTMLTextAreaElement>
+  onEsc?: React.KeyboardEventHandler<HTMLTextAreaElement>
 }
 
-export const Textbox: FunctionComponent<Props> 
-  = ({placeholder, name, register, params, onKeyDown, initValue}) => {
-    const {ref, ...rest} = register(name, {...params})
-    const adjast = (target: EventTarget) => {
-      const current = target as HTMLTextAreaElement
-      if (current) {
-        current.style.height = "1px"
-        if (current.scrollHeight > current.offsetHeight) {
-          current.style.height = current.scrollHeight + "px"
-        }
+export const Textbox: FunctionComponent<Props> = ({
+  placeholder, name, register, params,
+  initValue, clearOnEnter, clearOnEsc, 
+  onEnter, onEsc
+}) => {
+  const {ref, ...rest} = register(name, {...params})
+  const [text, setText] = useState(initValue)
+
+  useEffect(() => {
+    setText(initValue)
+  }, [initValue])
+  
+  const adjast = useCallback((target: EventTarget) => {
+    const current = target as HTMLTextAreaElement
+    if (current) {
+      current.style.height = "1px"
+      if (current.scrollHeight > current.offsetHeight) {
+        current.style.height = current.scrollHeight + "px"
       }
     }
-    return (
-      <div className="textbox-wrapper">
-        <textarea onKeyDown={onKeyDown}
-          onInput={(e) => adjast(e.target)} placeholder={placeholder}
-          rows={1} {...rest} ref={(element) => {
-            ref(element)
-            if (element) {
-              element.value = initValue || ""
-              adjast(element)
-              element.setSelectionRange(
-                element.value.length, 
-                element.value.length
-              )
-            }
-          }}
-        />
-      </div>
-    )
+  }, [])
+
+  const onInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    setText((e.target as HTMLTextAreaElement).value)
+    adjast(e.target)
   }
+
+  const handleKeyDown = useCallback<React.KeyboardEventHandler<HTMLTextAreaElement>>(
+    (e) => {
+      if (!e.shiftKey) {
+        if (e.code === "Enter") {
+          e.preventDefault()
+          if (onEnter) onEnter(e)
+          if (clearOnEnter) setText("")
+        }
+        if (e.code === "Escape") {
+          e.preventDefault()
+          if (onEsc) onEsc(e)
+          if (clearOnEsc) setText("")
+        }
+      }
+    },
+    [clearOnEnter, clearOnEsc],
+  )
+
+  return (
+    <div className="textbox-wrapper">
+      <textarea onKeyDown={handleKeyDown}
+        onInput={onInput} placeholder={placeholder}
+        value={text}
+        rows={1} {...register(name, {...params})}
+      />
+    </div>
+  )
+}
