@@ -1,0 +1,3 @@
+mutation AddUserToChat($userId: Int!, $chatId: Int!) {
+  addUserToChat(user_id: $userId, chat_id: $chatId)
+}

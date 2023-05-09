@@ -1,0 +1,6 @@
+subscription userAddedToChat($chatId: Int!) {
+  userAddedToChat(chatId: $chatId) {
+    id
+    name
+  }
+}

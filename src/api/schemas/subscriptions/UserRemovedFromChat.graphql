@@ -1,0 +1,6 @@
+subscription userRemovedFromChat($chatId: Int!) {
+  userRemovedFromChat(chatId: $chatId) {
+    id
+    name
+  }
+}

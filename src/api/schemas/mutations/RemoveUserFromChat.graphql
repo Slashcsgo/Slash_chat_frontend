@@ -1,0 +1,3 @@
+mutation RemoveUserFromChat($chatId: Int!, $userId: Int!) {
+  removeUserFromChat(chat_id: $chatId, user_id: $userId)
+}

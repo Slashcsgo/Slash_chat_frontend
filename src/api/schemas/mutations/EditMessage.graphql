@@ -1,0 +1,8 @@
+mutation editMessage($id: Int!, $content: String!) {
+  editMessage(id: $id, content: $content) {
+    chat_id
+    content
+    created_at
+    id
+  }
+}
