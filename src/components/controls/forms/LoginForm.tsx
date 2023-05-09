@@ -1,14 +1,16 @@
 import { useMutation } from "@apollo/client";
+import { ApolloError } from "@apollo/client/errors/index";
 import { FunctionComponent, useState } from "react";
 import { FieldValues, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { emailPattern } from "../../../helpers/ValidationPatterns";
 import { Submit } from "../buttons/Submit";
 import { PasswordInput } from "../inputs/PasswordInput";
 import { TextInput } from "../inputs/TextInput";
-import LoginSchema from "../../../api/schemas/Login.graphql"
+import LoginSchema from "../../../api/schemas/mutations/Login.graphql"
 import { setToken } from "../../../helpers/AuthHelper";
 import { useNavigate } from "react-router-dom";
 import { hash } from "../../../helpers/Hash";
+import { ErrorCodes } from "../../../helpers/Errors";
 
 type Errors = {
   email?: string,
@@ -37,17 +39,18 @@ export const LoginForm: FunctionComponent = () => {
       }
     }).then(result => {
       if (result && result.data && result.data.login) {
-        const payload = result.data.login
-        if (payload.error && payload.error.code) {
-          if (payload.error.code === 403) {
-            setMainError("Вы ввели неверный email или пароль")
-          } else {
-            setMainError("Неопознанная ошибка, попробуйте позже")
-          }
-        } else if (payload.success && payload.token) {
-          setToken(payload.token)
-          navigate('/')
-        }
+        setToken(result.data.login)
+        navigate('/')
+      }
+    }).catch((errors: ApolloError) => {
+      const graphQLErrors = errors?.graphQLErrors
+      const badUserInputError = graphQLErrors.find((error) => {
+        return error?.extensions?.code === ErrorCodes.badUserInput
+      })
+      if (badUserInputError) {
+        setMainError("Вы ввели неверный email или пароль")
+      } else {
+        setMainError("Неопознанная ошибка, попробуйте позже")
       }
     })
   }

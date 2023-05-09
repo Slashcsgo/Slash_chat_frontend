@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { currentUser, User } from "../../cache/Auth";
 import { TexteditForm } from "../controls/forms/TexteditForm";
 import { UserPicture } from "../UserPicture";
-import ModifyUserSchema from "../../api/schemas/ModifyUser.graphql"
+import ModifyUserSchema from "../../api/schemas/mutations/ModifyUser.graphql"
 
 export const CurrentUser: FunctionComponent = () => {
   const user = useReactiveVar(currentUser)

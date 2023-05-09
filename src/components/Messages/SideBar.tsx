@@ -1,12 +1,10 @@
 import { useLazyQuery, useQuery, useReactiveVar } from "@apollo/client";
 import { FunctionComponent } from "react";
 import { chats, messageList, selectedChatId } from "../../cache/Messages";
-import { Button } from "../controls/buttons/Button";
-import { UserPicture } from "../UserPicture";
 import { ChatList } from "./ChatList";
 import { CurrentUser } from "./CurrentUser";
 import { SideBarFooter } from "./SideBarFooter";
-import ChatSchema from "../../api/schemas/Chat.graphql"
+import ChatSchema from "../../api/schemas/queries/Chat.graphql"
 
 export const SideBar: FunctionComponent = () => {
   const chatsList = useReactiveVar(chats)

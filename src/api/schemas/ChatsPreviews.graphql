@@ -1,8 +1,0 @@
-query chats {
-  chats {
-    id
-    description
-    title
-    admin_id
-  }
-}

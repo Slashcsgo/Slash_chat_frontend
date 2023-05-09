@@ -5,11 +5,11 @@ import { currentUser } from "../../../cache/Auth";
 import { ImageButton } from "../../controls/buttons/ImageButton";
 import { UserPicture } from "../../UserPicture";
 import ElipsisImage from "../../../static/images/ellipsis.svg";
-import ModifyChatSchema from "../../../api/schemas/ModifyChat.graphql"
-import RemoveChatSchema from "../../../api/schemas/RemoveChat.graphql"
-import QuitChatSchema from "../../../api/schemas/QuitChat.graphql"
-import AddUserToChatSchema from "../../../api/schemas/AddUserToChat.graphql"
-import RemoveUserFromChatSchema from "../../../api/schemas/RemoveUserFromChat.graphql"
+import ModifyChatSchema from "../../../api/schemas/mutations/ModifyChat.graphql"
+import RemoveChatSchema from "../../../api/schemas/mutations/RemoveChat.graphql"
+import QuitChatSchema from "../../../api/schemas/mutations/QuitChat.graphql"
+import AddUserToChatSchema from "../../../api/schemas/mutations/AddUserToChat.graphql"
+import RemoveUserFromChatSchema from "../../../api/schemas/mutations/RemoveUserFromChat.graphql"
 import { TexteditForm } from "../../controls/forms/TexteditForm";
 import { FieldValues, SubmitHandler } from "react-hook-form";
 import { Chat, chats, chatsPreviews, selectedChatId } from "../../../cache/Messages";
@@ -86,6 +86,8 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
         ...variables,
         id: chat.id
       }
+    }).then((e) => {
+      console.log(e)
     }).catch(error => {
       console.log(error)
     })
@@ -98,10 +100,7 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
       }
     }).then((result) => {
       if (result && result.data && result.data.removeChat) {
-        const payload = result.data.removeChat
-        if (!payload.error && payload.success) {
-          removeChat(id)
-        }
+        removeChat(id)
       }
     })
   }
@@ -113,10 +112,7 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
       }
     }).then((result) => {
       if (result && result.data && result.data.quitChat) {
-        const payload = result.data.quitChat
-        if (!payload.error && payload.success) {
-          removeChat(id)
-        }
+        removeChat(id)
       }
     })
   }

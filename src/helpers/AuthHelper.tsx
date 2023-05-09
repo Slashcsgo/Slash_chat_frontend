@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client"
 import { FunctionComponent, ReactNode } from "react"
 import { Navigate } from "react-router-dom"
-import MeSchema from "../api/schemas/Me.graphql"
+import MeSchema from "../api/schemas/queries/Me.graphql"
 import { currentUser } from "../cache/Auth"
 import { PageLayout } from "../components/layouts/PageLayout"
 import { CircleLoader } from "../components/Loaders/CircleLoader"

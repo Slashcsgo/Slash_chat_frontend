@@ -2,13 +2,13 @@ import { useQuery, useReactiveVar, useSubscription } from "@apollo/client";
 import { MainLayout } from "../components/layouts/MainLayout";
 import { Chat } from "../components/Messages/Chat/Chat";
 import { SideBar } from "../components/Messages/SideBar";
-import ChatsSchema from "../api/schemas/ChatsPreviews.graphql";
-import UsersSchema from "../api/schemas/Users.graphql";
 import { chats, ChatsPreviews, chatsPreviews, selectedChatId } from "../cache/Messages";
 import { users } from "../cache/Users";
-import ChatModifiedSchema from "../api/schemas/ChatModified.graphql"
-import ChatAddedSchema from "../api/schemas/ChatAdded.graphql"
-import ChatRemovedSchema from "../api/schemas/ChatRemoved.graphql"
+import ChatsSchema from "../api/schemas/queries/ChatsPreviews.graphql";
+import UsersSchema from "../api/schemas/queries/Users.graphql";
+import ChatModifiedSchema from "../api/schemas/subscriptions/ChatModified.graphql"
+import ChatAddedSchema from "../api/schemas/subscriptions/ChatAdded.graphql"
+import ChatRemovedSchema from "../api/schemas/subscriptions/ChatRemoved.graphql"
 
 export default function Messages() {
   const previews = useReactiveVar(chatsPreviews)

@@ -5,7 +5,7 @@ import { emailPattern } from "../../../helpers/ValidationPatterns";
 import { Submit } from "../buttons/Submit";
 import { PasswordInput } from "../inputs/PasswordInput";
 import { TextInput } from "../inputs/TextInput";
-import RegisterSchema from "../../../api/schemas/Register.graphql"
+import RegisterSchema from "../../../api/schemas/mutations/Register.graphql"
 import { useNavigate } from "react-router-dom"
 import { hash } from "../../../helpers/Hash";
 
@@ -41,13 +41,10 @@ export const RegisterForm: FunctionComponent = () => {
       }
     }).then(result => {
       if (result && result.data && result.data.addUser) {
-        const payload = result.data.addUser
-        if (payload.error && payload.error.code) {
-          setMainError("Неопознанная ошибка, попробуйте позже")
-        } else if (payload.success) {
-          navigate('/login')
-        }
+        navigate('/login')
       }
+    }).catch((errors) => {
+      setMainError("Неопознанная ошибка, попробуйте позже")
     })
   }
 

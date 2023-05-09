@@ -5,15 +5,15 @@ import { ChatNotSelected } from "./ChatNotSelected";
 import { ChatLoading } from "./ChatLoading";
 import { ChatSelected } from "./ChatSelected";
 import { FieldValues, SubmitHandler } from "react-hook-form";
-import SendMessageSchema from "../../../api/schemas/SendMessage.graphql"
-import DeleteMessageSchema from "../../../api/schemas/DeleteMessage.graphql"
-import MessageCreatedSchema from "../../../api/schemas/MessageCreated.graphql"
-import MessageEditedSchema from "../../../api/schemas/MessageEdited.graphql"
-import MessageDeletedSchema from "../../../api/schemas/MessageDeleted.graphql"
-import EditMessageSchema from "../../../api/schemas/EditMessage.graphql"
-import UserAddedToChatSchema from "../../../api/schemas/UserAddedToChat.graphql"
-import UserRemovedFromChatSchema from "../../../api/schemas/UserRemovedFromChat.graphql"
-import { currentUser, User } from "../../../cache/Auth";
+import SendMessageSchema from "../../../api/schemas/mutations/SendMessage.graphql"
+import DeleteMessageSchema from "../../../api/schemas/mutations/DeleteMessage.graphql"
+import EditMessageSchema from "../../../api/schemas/mutations/EditMessage.graphql"
+import MessageCreatedSchema from "../../../api/schemas/subscriptions/MessageCreated.graphql"
+import MessageEditedSchema from "../../../api/schemas/subscriptions/MessageEdited.graphql"
+import MessageDeletedSchema from "../../../api/schemas/subscriptions/MessageDeleted.graphql"
+import UserAddedToChatSchema from "../../../api/schemas/subscriptions/UserAddedToChat.graphql"
+import UserRemovedFromChatSchema from "../../../api/schemas/subscriptions/UserRemovedFromChat.graphql"
+import { User } from "../../../cache/Auth";
 
 export const Chat: FunctionComponent = () => {
   const chatId = useReactiveVar(selectedChatId)
@@ -124,6 +124,7 @@ export const Chat: FunctionComponent = () => {
       name: string
     }
   ) => {
+    console.log(user)
     let newChatsList = {...chatsList}
     newChatsList[chatId as number]
       .users.push(user as User)
@@ -194,11 +195,8 @@ export const Chat: FunctionComponent = () => {
         }
       }).then((result) => {
         if (result && result.data && result.data.deleteMessage) {
-          const body = result.data.deleteMessage
-          if (body.success && body.message) {
-            const message: { id: string, chat_id: string } = body.message
-            deleteMessageFromState(Number(message.id), Number(message.chat_id))
-          }
+          const message: { id: string, chat_id: string } = result.data.deleteMessage
+          deleteMessageFromState(Number(message.id), Number(message.chat_id))
         }
       })
     }

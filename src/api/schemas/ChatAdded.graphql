@@ -1,7 +1,0 @@
-subscription Subscription {
-  chatAdded {
-    description
-    id
-    title
-  }
-}

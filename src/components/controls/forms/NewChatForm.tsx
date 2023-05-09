@@ -2,7 +2,7 @@ import { FunctionComponent, useState } from "react";
 import { FieldValues, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { Submit } from "../buttons/Submit";
 import { TextInput } from "../inputs/TextInput";
-import AddChatSchema from "../../../api/schemas/AddChat.graphql"
+import AddChatSchema from "../../../api/schemas/mutations/AddChat.graphql"
 import { useMutation, useReactiveVar } from "@apollo/client";
 import { chats, chatsPreviews } from "../../../cache/Messages";
 
@@ -26,11 +26,9 @@ export const NewChatForm: FunctionComponent<Props>
     const [errors, setErrors] = useState<Errors>({})
     const [addChat] = useMutation(AddChatSchema)
     const chatsPreviewsList = useReactiveVar(chatsPreviews)
-    const chatsList = useReactiveVar(chats)
 
     const onSuccess: SubmitHandler<FieldValues> = (formData) => {
       setErrors({})
-      console.log(chatsList, chatsPreviewsList)
       const optimisticChatsPreviews = Array.from(chatsPreviewsList || [])
       optimisticChatsPreviews.push({
         title: formData.title,
@@ -46,13 +44,12 @@ export const NewChatForm: FunctionComponent<Props>
       }).then(result => {
         if (result && result.data && result.data.addChat) {
           const payload = result.data.addChat
-          if (payload.success && payload.chat) {
-            const newChat = {...payload.chat, id: Number(payload.chat.id)}
-            const newChatsPreviews = Array.from(chatsPreviewsList || [])
-            newChatsPreviews.push(newChat)
-            chatsPreviews(newChatsPreviews)
-            onSuccessCallback(newChat.id)
-          }
+
+          const newChat = {...payload, id: Number(payload.id)}
+          const newChatsPreviews = Array.from(chatsPreviewsList || [])
+          newChatsPreviews.push(newChat)
+          chatsPreviews(newChatsPreviews)
+          onSuccessCallback(newChat.id)
         }
       }).catch(() => {
         setMainError("Неопознанная ошибка, попробуйте позже")
