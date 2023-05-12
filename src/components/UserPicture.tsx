@@ -18,8 +18,8 @@ const colors = [
 ]
 
 export const UserPicture: FunctionComponent<Props> = ({letter, colorId, size=null}) => {
-  const color = useMemo(() => colors[colorId % colors.length], [colorId])
+  const color = useMemo(() => colors[colorId % colors.length] || colors[0], [colorId])
   return <div className={`user-image ${size ? size : ""}`} style={{background: color}}>
-    <span className="user-image_letter">{letter.toUpperCase()}</span>
+    <span className="user-image_letter">{letter ? letter.toUpperCase() : "?"}</span>
   </div>
 }

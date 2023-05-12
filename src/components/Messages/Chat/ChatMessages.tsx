@@ -1,10 +1,10 @@
-import { useReactiveVar } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { ControlledMenu, MenuItem, ClickEvent, MenuDivider } from "@szhsin/react-menu";
 import { FunctionComponent, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { currentUser } from "../../../cache/Auth";
-import { Message, Messages } from "../../../cache/Messages";
+import { Message, Messages } from "../../../types";
 import { MessageRow } from "./MessageRow";
+import CurrentUserSchema from "../../../api/schemas/queries/Me.graphql"
 
 type Props = {
   messages: Messages
@@ -14,7 +14,11 @@ type Props = {
 
 export const ChatMessages: FunctionComponent<Props> 
   = ({ messages, onDeleteMessage, setEditingMessage }) => {
-    const user = useReactiveVar(currentUser)
+    const client = useApolloClient()
+    const user = client.readQuery({
+      query: CurrentUserSchema
+    })?.user
+
     const [isOpen, setOpen] = useState(false)
     const anchorPoint = useRef({ x: 0, y: 0 })
     const anchorMessage = useRef<Message>()

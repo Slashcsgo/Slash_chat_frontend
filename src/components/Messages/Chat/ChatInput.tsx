@@ -1,6 +1,6 @@
 import { FunctionComponent } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
-import { Message } from "../../../cache/Messages";
+import { Message } from "../../../types";
 import { MessageForm } from "../../controls/forms/MessageForm";
 
 type Props = {

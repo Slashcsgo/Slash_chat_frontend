@@ -1,4 +1,4 @@
-query chats {
+query Chat {
   chats {
     id
     description

@@ -3,5 +3,6 @@ subscription Subscription {
     description
     id
     title
+    admin_id
   }
 }

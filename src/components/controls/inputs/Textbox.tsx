@@ -45,23 +45,20 @@ export const Textbox: FunctionComponent<Props> = ({
     adjast(e.target)
   }
 
-  const handleKeyDown = useCallback<React.KeyboardEventHandler<HTMLTextAreaElement>>(
-    (e) => {
-      if (!e.shiftKey) {
-        if (e.code === "Enter") {
-          e.preventDefault()
-          if (onEnter) onEnter(e)
-          if (clearOnEnter) setText("")
-        }
-        if (e.code === "Escape") {
-          e.preventDefault()
-          if (onEsc) onEsc(e)
-          if (clearOnEsc) setText("")
-        }
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (!e.shiftKey) {
+      if (e.code === "Enter") {
+        e.preventDefault()
+        if (onEnter) onEnter(e)
+        if (clearOnEnter) setText("")
       }
-    },
-    [clearOnEnter, clearOnEsc],
-  )
+      if (e.code === "Escape") {
+        e.preventDefault()
+        if (onEsc) onEsc(e)
+        if (clearOnEsc) setText("")
+      }
+    }
+  }
 
   return (
     <div className="textbox-wrapper">

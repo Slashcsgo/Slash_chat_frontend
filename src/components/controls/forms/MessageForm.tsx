@@ -2,9 +2,9 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { ImageButton } from "../buttons/ImageButton";
 import { Textbox } from "../inputs/Textbox";
-import { Message } from "../../../cache/Messages";
 import SendImage from "../../../static/images/send.svg"
 import CancelImage from "../../../static/images/cancel.svg"
+import { Message } from "../../../types";
 
 type Props = {
   onSubmit: SubmitHandler<FieldValues>
@@ -48,17 +48,13 @@ export const MessageForm: FunctionComponent<Props>
         resetField("message")
         onSubmit(data)
       }, onError)} className="message-form">
-        {(editingMessage && true) &&
+        {editingMessage &&
           <div className="message-form__info">
-            {editingMessage &&
-              <>
-                <span>{editingMessage.content}</span>
-                <ImageButton type="button" image={CancelImage} onClick={() => {
-                  closeEditingMessage()
-                  resetField("message")
-                }} alt="Отменить" />
-              </>
-            }
+            <span>{editingMessage.content}</span>
+            <ImageButton type="button" image={CancelImage} onClick={() => {
+              closeEditingMessage()
+              resetField("message")
+            }} alt="Отменить" />
           </div>
         }
         <div className="message-form__controls">

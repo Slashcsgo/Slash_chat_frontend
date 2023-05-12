@@ -1,7 +1,7 @@
 import { FunctionComponent } from "react";
 import { LongPressEventType, useLongPress } from "use-long-press";
-import { User } from "../../../cache/Auth";
-import { Message } from "../../../cache/Messages";
+import { User } from "../../../types";
+import { Message } from "../../../types";
 import { UserPicture } from "../../UserPicture";
 import { MessageBlock } from "./MessageBlock";
 

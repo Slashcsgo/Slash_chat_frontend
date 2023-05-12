@@ -1,6 +1,6 @@
-import { useMutation, useReactiveVar, useSubscription } from "@apollo/client";
-import { FunctionComponent } from "react";
-import { chats, deleteMessageFromState, Message, messageList, Messages, selectedChatId } from "../../../cache/Messages";
+import { useApolloClient, useMutation, useQuery, useReactiveVar, useSubscription } from "@apollo/client";
+import { FunctionComponent, useMemo } from "react";
+import { selectedChatId } from "../../../api/Cache";
 import { ChatNotSelected } from "./ChatNotSelected";
 import { ChatLoading } from "./ChatLoading";
 import { ChatSelected } from "./ChatSelected";
@@ -13,14 +13,30 @@ import MessageEditedSchema from "../../../api/schemas/subscriptions/MessageEdite
 import MessageDeletedSchema from "../../../api/schemas/subscriptions/MessageDeleted.graphql"
 import UserAddedToChatSchema from "../../../api/schemas/subscriptions/UserAddedToChat.graphql"
 import UserRemovedFromChatSchema from "../../../api/schemas/subscriptions/UserRemovedFromChat.graphql"
-import { User } from "../../../cache/Auth";
+import ChatSchema from "../../../api/schemas/queries/Chat.graphql"
+import ChatFullSchema from "../../../api/schemas/queries/ChatFull.graphql"
+import { Message, Chat as ChatType } from "../../../types";
 
 export const Chat: FunctionComponent = () => {
+  const client = useApolloClient()
+
   const chatId = useReactiveVar(selectedChatId)
-  const chatsList = useReactiveVar(chats)
-  const MessagesByChatsList = useReactiveVar(messageList)
-  const selectedChat = chatId ? chatsList[chatId] : null
-  const selectedChatMessages = chatId ? MessagesByChatsList[chatId] : null
+
+  useQuery(ChatSchema, {
+    variables: {
+      id: chatId
+    },
+    refetchWritePolicy: 'overwrite',
+    fetchPolicy: 'network-only'
+  })
+  
+  const selectedChat: ChatType = client.readQuery({
+    query: ChatFullSchema,
+    variables: {
+      id: chatId
+    }
+  })?.chat
+
   const [sendMessage] = useMutation(SendMessageSchema)
   const [deleteMessage] = useMutation(DeleteMessageSchema)
   const [editMessage] = useMutation(EditMessageSchema)
@@ -71,7 +87,7 @@ export const Chat: FunctionComponent = () => {
         result.data.data.messageDeleted
       ) {
         const data = result.data.data.messageDeleted
-        deleteMessageFromState(Number(data.id), Number(data.chat_id))
+        removeMessage(data)
       }
     }
   })
@@ -124,66 +140,81 @@ export const Chat: FunctionComponent = () => {
       name: string
     }
   ) => {
-    console.log(user)
-    let newChatsList = {...chatsList}
-    newChatsList[chatId as number]
-      .users.push(user as User)
+    const appendedUser = client.cache.identify({ id: user.id, __typename: 'users' })
 
-    chats(newChatsList)
+    client.cache.modify({
+      id: client.cache.identify({ id: chatId, __typename: 'chats' }),
+      fields: {
+        users_chats(value) {
+          return [
+            ...value,
+            {
+              __typename: 'users_chats',
+              user: {
+                __ref: appendedUser
+              }
+            }
+          ]
+        }
+      }
+    })
   }
 
   const removeUser = (userId: number) => {
-    if (chatId) {
-      let newChatsList = {...chatsList}
-      newChatsList[chatId].users = 
-        newChatsList[chatId].users.filter(e => e.id !== userId)
-    }
+    const userToRemove = client.cache.identify({ id: userId, __typename: 'users' })
+
+    client.cache.modify({
+      id: client.cache.identify({ id: chatId, __typename: 'chats' }),
+      fields: {
+        users_chats(value: {user: {__ref: string}}[]) {
+          return value.filter(e => e.user.__ref !== userToRemove)
+        }
+      }
+    })
   }
 
-  const insertMessage
-    = (message: Message) => {
-      if (chatId) {
-        const newMessages: Messages = Array.from(MessagesByChatsList[chatId])
-        newMessages.push({
-          id: message.id,
-          content: message.content,
-          user: message.user,
-          created_at: message.created_at,
-          chat_id: message.chat_id
-        })
-        MessagesByChatsList[chatId] = newMessages
-        messageList(MessagesByChatsList)
+  const insertMessage = (message: Message) => {
+    const cachedMessage = client.cache.identify(message)
+    client.cache.modify({
+      id: client.cache.identify(selectedChat),
+      fields: {
+        messages: (value) => [...value, {__ref: cachedMessage}]
       }
-    }
+    })
+  }
 
-  const updateMessage
-    = (message: Message, index: number) => {
-      if (chatId) {
-        const newMessages: Messages = Array.from(MessagesByChatsList[chatId])
-        newMessages[index] = message
-        MessagesByChatsList[chatId] = newMessages
-        messageList(MessagesByChatsList)
+  const updateMessage = (message: Message) => {
+    client.cache.modify({
+      id: client.cache.identify(message),
+      fields: {
+        content() {
+          return message.content
+        }
       }
-    }
+    })
+  }
+
+  const removeMessage = (message: Message) => {
+    const messageId =  client.cache.identify(message)
+    client.cache.modify({
+      id: client.cache.identify({id: chatId, __typename: "chats"}),
+      fields: {
+        messages(value: any[]) {
+          return value.filter(e => e.__ref !== messageId)
+        }
+      }
+    })
+    client.cache.evict({id: client.cache.identify(message)})
+    client.cache.gc()
+  }
 
   const insertOrUpdateMessage = (message: Message) => {
-    const messageData: Message = {
-      id: Number(message.id),
-      chat_id: Number(message.chat_id),
-      content: message.content,
-      created_at: message.created_at,
-      user: {
-        id: Number(message.user.id),
-        name: message.user.name
-      }
-    }
-    const messageIndex = MessagesByChatsList[message.chat_id]
-      .findIndex((element) => element.id === messageData.id)
-
-    if (messageIndex === -1) {
-      insertMessage(messageData)
+    const isMessageInChat = selectedChat.messages
+      .find(e => e.id === Number(message.id))
+    if (isMessageInChat) {
+      updateMessage(message)
     } else {
-      updateMessage(messageData, messageIndex)
+      insertMessage(message)
     }
   }
 
@@ -192,11 +223,6 @@ export const Chat: FunctionComponent = () => {
       deleteMessage({
         variables: {
           id: messageId
-        }
-      }).then((result) => {
-        if (result && result.data && result.data.deleteMessage) {
-          const message: { id: string, chat_id: string } = result.data.deleteMessage
-          deleteMessageFromState(Number(message.id), Number(message.chat_id))
         }
       })
     }
@@ -209,26 +235,17 @@ export const Chat: FunctionComponent = () => {
           content: formData.message
         }
       })
-      if (chatId) {
-        const messageIndex = MessagesByChatsList[chatId]
-          .findIndex(element => element.id === messageId)
-        const newMessage = MessagesByChatsList[chatId][messageIndex]
-        newMessage.content = formData.message
-        if (messageIndex !== -1) {
-          updateMessage(newMessage, messageIndex)
-        }
-      }
     }
 
   if (chatId) {
-    if (selectedChat && selectedChatMessages) {
+    if (selectedChat && selectedChat.messages) {
       return (
           <ChatSelected 
             onSendMessage={onSendMessage}
             onDeleteMessage={onDeleteMessage} 
             onEditMessage={onEditMessage}
             chat={selectedChat} 
-            messages={selectedChatMessages} />
+            messages={selectedChat.messages} />
         )
     } else {
       return <ChatLoading />

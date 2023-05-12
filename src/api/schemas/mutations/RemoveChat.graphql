@@ -1,3 +1,5 @@
 mutation removeChat($id: Int!) {
-  removeChat(id: $id)
+  removeChat(id: $id) {
+    id
+  }
 }

@@ -1,7 +1,6 @@
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { ControlledMenu, MenuDivider, MenuItem, SubMenu } from "@szhsin/react-menu";
 import { FunctionComponent, useMemo, useRef, useState } from "react";
-import { currentUser } from "../../../cache/Auth";
 import { ImageButton } from "../../controls/buttons/ImageButton";
 import { UserPicture } from "../../UserPicture";
 import ElipsisImage from "../../../static/images/ellipsis.svg";
@@ -10,10 +9,13 @@ import RemoveChatSchema from "../../../api/schemas/mutations/RemoveChat.graphql"
 import QuitChatSchema from "../../../api/schemas/mutations/QuitChat.graphql"
 import AddUserToChatSchema from "../../../api/schemas/mutations/AddUserToChat.graphql"
 import RemoveUserFromChatSchema from "../../../api/schemas/mutations/RemoveUserFromChat.graphql"
+import CurrentUserSchema from "../../../api/schemas/queries/Me.graphql"
+import UsersSchema from "../../../api/schemas/queries/Users.graphql"
+import ChatSchema from "../../../api/schemas/queries/Chat.graphql"
 import { TexteditForm } from "../../controls/forms/TexteditForm";
 import { FieldValues, SubmitHandler } from "react-hook-form";
-import { Chat, chats, chatsPreviews, selectedChatId } from "../../../cache/Messages";
-import { users } from "../../../cache/Users";
+import { selectedChatId } from "../../../api/Cache";
+import { Chat, User } from "../../../types";
 
 type Props = {
   chat: Chat
@@ -21,7 +23,19 @@ type Props = {
 
 export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
   const {title, description, id, admin_id: adminId} = chat
-  const user = useReactiveVar(currentUser)
+
+  
+  const users = useMemo(() => chat.users_chats.map(e => e.user), [chat])
+  
+  const client = useApolloClient()
+  const user: User = client.readQuery({
+    query: CurrentUserSchema
+  })?.user
+
+  const usersDataRaw: User[] = client.readQuery({
+    query: UsersSchema
+  })?.users
+
   const MenuButtonRef = useRef(null)
   const [isOpen, setOpen] = useState(false)
   const [modifyChatMutation] = useMutation(ModifyChatSchema)
@@ -30,13 +44,9 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
   const [AddUserToChatMutation] = useMutation(AddUserToChatSchema)
   const [RemoveUserFromChatMutation] = useMutation(RemoveUserFromChatSchema) 
   
-  const chatsData = useReactiveVar(chats)
-  const chatsPreviewsData = useReactiveVar(chatsPreviews)
-  const usersDataRaw = useReactiveVar(users)
-  
   const chatUsers = useMemo(() => {
-    return chat.users.filter(e => e.id !== user?.id)
-  }, [chat.users, user])
+    return users.filter(e => e.id !== user?.id)
+  }, [users, user])
   const usersData = useMemo(() => {
     return usersDataRaw.filter(e => {
       return e.id !== user?.id && !chatUsers.find(el => el.id === e.id)
@@ -50,29 +60,23 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
   }
 
   const updateChat = (variables: FieldValues) => {
-    const optimisticChat = {...chat, ...variables} as Chat
-    const newChats = {...chatsData, [chat.id]: optimisticChat}
-
-    const newChatsPreviews = Array.from(chatsPreviewsData || [])
-    const chatPreviewIndex = newChatsPreviews.findIndex(e => e.id === id)
-
-    newChatsPreviews[chatPreviewIndex] = {
-      id: optimisticChat.id,
-      description: optimisticChat.description,
-      title: optimisticChat.title
-    }
-
-    chats(newChats)
-    chatsPreviews(newChatsPreviews)
+    client.cache.modify({
+      id: client.cache.identify({ id: chat.id, __typename: 'chats'}),
+      fields: {
+        description(value) {
+          return variables.description ? variables.description : value
+        },
+        title(value) {
+          return variables.title ? variables.title : value
+        }
+      }
+    })
   }
 
   const removeChat = (chatId: number) => {
-    const newChatsPreviews = Array.from(chatsPreviewsData || []).filter(e => e.id !== chatId)
-    chatsPreviews(newChatsPreviews)
-
-    const newChats = {...chatsData}
-    delete newChats[chatId]
-    chats(newChats)
+    const normalizedId = client.cache.identify({ id: chatId, __typename: 'chats' })
+    client.cache.evict({id: normalizedId})
+    client.cache.gc()
     selectedChatId(null)
   }
 
@@ -86,8 +90,6 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
         ...variables,
         id: chat.id
       }
-    }).then((e) => {
-      console.log(e)
     }).catch(error => {
       console.log(error)
     })
@@ -188,7 +190,7 @@ export const ChatHeader: FunctionComponent<Props> = ({chat}) => {
       boundingBoxPadding="80 10"
       position="anchor"
     >
-      {user?.id === adminId &&
+      {Number(user?.id) === adminId &&
         <>
           <MenuItem onClick={() => setEditingField("title")}>
             <span>Изменить название</span>

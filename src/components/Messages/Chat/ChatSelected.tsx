@@ -1,6 +1,6 @@
-import { FunctionComponent, memo, useCallback, useMemo, useState } from "react";
+import { FunctionComponent, useCallback, useState } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
-import { Chat, Message, Messages } from "../../../cache/Messages";
+import { Chat, Message, Messages } from "../../../types";
 import { ChatHeader } from "./ChatHeader";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
@@ -50,7 +50,7 @@ export const ChatSelected: FunctionComponent<Props>
             onDeleteMessage={beforeDelete} 
             setEditingMessage={(message: Message) => setEditingMessage(message)} 
           />
-          <ChatInput onSubmit={onSubmit} 
+          <ChatInput onSubmit={(data) => onSubmit(data)} 
             closeEditingMessage={closeEditing} 
             editingMessage={editingMessage}
           />

@@ -31,7 +31,6 @@ export const RegisterForm: FunctionComponent = () => {
 
   const onSuccess: SubmitHandler<FieldValues> = async (formData) => {
     const password = await hash(formData.password)
-    console.log(password)
     setErrors({})
     registerUser({
       variables: {

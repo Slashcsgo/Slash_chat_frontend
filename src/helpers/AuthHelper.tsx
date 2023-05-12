@@ -2,7 +2,6 @@ import { useQuery } from "@apollo/client"
 import { FunctionComponent, ReactNode } from "react"
 import { Navigate } from "react-router-dom"
 import MeSchema from "../api/schemas/queries/Me.graphql"
-import { currentUser } from "../cache/Auth"
 import { PageLayout } from "../components/layouts/PageLayout"
 import { CircleLoader } from "../components/Loaders/CircleLoader"
 
@@ -12,13 +11,7 @@ type Props = {
 
 
 export const AuthMiddleware: FunctionComponent<Props> = ({children}) => {
-  let {loading, error, data} = useQuery(MeSchema, {
-    onCompleted(data) {
-      if (data.user.length) {
-        currentUser(data.user[0])
-      }
-    }
-  })
+  let {loading, error} = useQuery(MeSchema)
 
   if (loading) {
     return <PageLayout>

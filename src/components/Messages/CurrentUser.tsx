@@ -1,15 +1,21 @@
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 import { ControlledMenu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { FunctionComponent, useMemo, useRef, useState } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { currentUser, User } from "../../cache/Auth";
+import { User } from "../../types";
 import { TexteditForm } from "../controls/forms/TexteditForm";
 import { UserPicture } from "../UserPicture";
 import ModifyUserSchema from "../../api/schemas/mutations/ModifyUser.graphql"
+import currentUserSchema from "../../api/schemas/queries/Me.graphql"
 
 export const CurrentUser: FunctionComponent = () => {
-  const user = useReactiveVar(currentUser)
+  const client = useApolloClient()
+
+  const user = client.readQuery({
+    query: currentUserSchema
+  })?.user
+
   const [modifyUserMutation] = useMutation(ModifyUserSchema)
   const [isOpen, setOpen] = useState(false)
   const anchorPoint = useRef({ x: 0, y: 0 })
@@ -46,19 +52,29 @@ export const CurrentUser: FunctionComponent = () => {
     setEditingField(undefined)
   }
 
+  const updateUser = (userData: User) => {
+    client.writeQuery({
+      query: currentUserSchema,
+      data: {
+        user: [userData]
+      }
+    })
+  }
+
   const modifyUser = (variables: FieldValues) => {
     const optimisticUser = {...user, ...variables} as User
-    currentUser(optimisticUser)
+    
+    updateUser(optimisticUser)
+
     closeEditors()
     modifyUserMutation({
       variables
     }).then(result => {
       if (result && result.data && result.data.modifyUser) {
         const data = result.data.modifyUser
-        if (data && data.success && data.user) {
-          const newUser = {...user, ...data.user}
-          currentUser(newUser)
-        }
+        const newUser = {...user, ...data} as User
+        
+        updateUser(newUser)
       }
     }).catch(error => {
       console.log(error)

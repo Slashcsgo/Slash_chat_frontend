@@ -1,5 +1,5 @@
-query Chat($id: Int) {
-  chats(where: {id: {_eq: $id}}) {
+query Chat($id: ID!) {
+  chat(id: $id) {
     id
     description
     title
